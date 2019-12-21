@@ -1,25 +1,38 @@
+/* eslint-disable padded-blocks */
 import React, { Fragment, useEffect, useState } from 'react'
 import { Category } from '../Category'
 import { List, Item } from './styles'
 
-export const ListOfCategories = () => {
-  // eslint-disable-next-line no-unused-vars
+function useCategoriesData () {
   const [categories, setCategories] = useState([])
-  const [showFixed, setShowFixed] = useState([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(function () {
+
+    setLoading(true)
+
     window.fetch('https://petgram-server.midudev.now.sh/categories')
       .then(res => res.json())
       .then(response => {
         setCategories(response)
+        setLoading(false)
       })
   }, [])
 
-  const renderList = (fixed) => (
+  return { categories, loading }
 
-    <List className={fixed ? 'fixed' : ''}>
+}
+
+export const ListOfCategories = () => {
+
+  const { categories, loading } = useCategoriesData()
+  const [showFixed, setShowFixed] = useState(false)
+
+  const renderList = (fixed) => (
+    <List fixed={fixed}>
       {
-        categories.map(category => <Item key={category.id}> <Category {...category} /> </Item>)
+        loading ? <Item key='loading'><Category /></Item>
+          : categories.map(category => <Item key={category.id}> <Category {...category} /> </Item>)
       }
     </List>
 
