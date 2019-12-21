@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import { Category } from '../Category'
 import { List, Item } from './styles'
 
 export const ListOfCategories = () => {
   // eslint-disable-next-line no-unused-vars
   const [categories, setCategories] = useState([])
+  const [showFixed, setShowFixed] = useState([])
 
   useEffect(function () {
     window.fetch('https://petgram-server.midudev.now.sh/categories')
@@ -14,11 +15,31 @@ export const ListOfCategories = () => {
       })
   }, [])
 
-  return (
-    <List>
+  const renderList = (fixed) => (
+
+    <List className={fixed ? 'fixed' : ''}>
       {
         categories.map(category => <Item key={category.id}> <Category {...category} /> </Item>)
       }
     </List>
+
+  )
+
+  useEffect(function () {
+    const onScroll = e => {
+      const newShowFixed = window.scrollY > 200
+      showFixed !== newShowFixed && setShowFixed(newShowFixed)
+    }
+
+    document.addEventListener('scroll', onScroll)
+
+    return () => document.removeEventListener('scroll', onScroll)
+  }, [showFixed])
+
+  return (
+    <Fragment>
+      {renderList()}
+      {showFixed && renderList(true)}
+    </Fragment>
   )
 }
